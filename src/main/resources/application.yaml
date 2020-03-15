@@ -3,3 +3,5 @@ spring:
     url: jdbc:postgresql://db/bank_system
     username: postgres
     password: ultraSafePass
+  flyway:
+    validate-on-migrate: true
