@@ -5,3 +5,7 @@ spring:
     password: ultraSafePass
   flyway:
     validate-on-migrate: true
+  mvc:
+    view:
+      prefix: /jsp/
+      suffix: .jsp
