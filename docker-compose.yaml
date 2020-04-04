@@ -5,7 +5,7 @@ services:
     container_name: postgres
     volumes:
       - .:/app
-      - ./src/main/resources/db/data:/var/lib/postgresql/data
+      - ./.database/data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: bank_system
       POSTGRES_USER: postgres
