@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -27,14 +28,14 @@ public class CustomerController {
 
     @GetMapping(path = "/")
     public String index(ModelMap model) {
-        Iterable<Customer> customers = customerRepository.findAll();
+        List<Customer> customers = customerRepository.findAll();
         model.addAttribute("customers", customers);
         return "index";
     }
 
     @GetMapping(path = "/customer/{customerId}/get-accounts")
     @ResponseBody
-    public Iterable<Account> getCustomerAccounts(@PathVariable UUID customerId) {
+    public List<Account> getCustomerAccounts(@PathVariable UUID customerId) {
 
         return accountRepository.findAllByCustomerId(customerId);
     }

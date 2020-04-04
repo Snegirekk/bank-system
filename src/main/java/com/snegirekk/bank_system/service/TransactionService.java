@@ -3,27 +3,20 @@ package com.snegirekk.bank_system.service;
 import com.snegirekk.bank_system.entity.Account;
 import com.snegirekk.bank_system.entity.Transaction;
 import com.snegirekk.bank_system.entity.TransactionParticipant;
-import com.snegirekk.bank_system.repository.AccountRepository;
-import com.snegirekk.bank_system.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
+import javax.persistence.EntityManager;
 import java.math.BigDecimal;
-import java.sql.Connection;
 
 @Service
 public class TransactionService {
 
-    private TransactionRepository transactionRepository;
-    private AccountRepository accountRepository;
-    private DataSource dataSource;
+    private EntityManager entityManager;
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository, DataSource dataSource) {
-        this.transactionRepository = transactionRepository;
-        this.accountRepository = accountRepository;
-        this.dataSource = dataSource;
+    public TransactionService(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     public void transfer(Account sourceAccount, Account targetAccount, BigDecimal amount) throws Exception {
@@ -37,24 +30,15 @@ public class TransactionService {
         TransactionParticipant source = sourceAccount.getTransactionParticipant();
         TransactionParticipant target = targetAccount.getTransactionParticipant();
 
-        Connection connection = dataSource.getConnection();
+        sourceAccount.setAmount(sourceAccount.getAmount().subtract(amount));
+        targetAccount.setAmount(targetAccount.getAmount().add(amount));
 
-        try {
-            connection.setAutoCommit(false);
+        entityManager.persist(sourceAccount);
+        entityManager.persist(targetAccount);
 
-            sourceAccount.setAmount(sourceAccount.getAmount().subtract(amount));
-            targetAccount.setAmount(targetAccount.getAmount().add(amount));
+        makeTransaction(source, target, amount);
 
-            accountRepository.save(sourceAccount);
-            accountRepository.save(targetAccount);
-
-            makeTransaction(source, target, amount);
-
-            connection.commit();
-        } catch (Throwable error) {
-            connection.rollback();
-            throw error;
-        }
+        entityManager.flush();
     }
 
     public void deposit(TransactionParticipant source, Account account, BigDecimal amount) throws Exception {
@@ -63,22 +47,12 @@ public class TransactionService {
             throw new Exception("Only positive amounts are allowed.");
         }
 
-        Connection connection = dataSource.getConnection();
+        account.setAmount(account.getAmount().add(amount));
+        entityManager.persist(account);
 
-        try {
-            connection.setAutoCommit(false);
+        makeTransaction(source, account.getTransactionParticipant(), amount);
 
-            account.setAmount(account.getAmount().add(amount));
-
-            accountRepository.save(account);
-
-            makeTransaction(source, account.getTransactionParticipant(), amount);
-
-            connection.commit();
-        } catch (Throwable error) {
-            connection.rollback();
-            throw error;
-        }
+        entityManager.flush();
     }
 
     public void pay(Account account, TransactionParticipant target, BigDecimal amount) throws Exception {
@@ -89,22 +63,12 @@ public class TransactionService {
             throw new Exception("Only positive amounts are allowed.");
         }
 
-        Connection connection = dataSource.getConnection();
+        account.setAmount(account.getAmount().subtract(amount));
+        entityManager.persist(account);
 
-        try {
-            connection.setAutoCommit(false);
+        makeTransaction(account.getTransactionParticipant(), target, amount);
 
-            account.setAmount(account.getAmount().subtract(amount));
-
-            accountRepository.save(account);
-
-            makeTransaction(account.getTransactionParticipant(), target, amount);
-
-            connection.commit();
-        } catch (Throwable error) {
-            connection.rollback();
-            throw error;
-        }
+        entityManager.flush();
     }
 
     private void makeTransaction(TransactionParticipant source, TransactionParticipant target, BigDecimal amount) {
@@ -115,6 +79,6 @@ public class TransactionService {
                 .setTarget(target)
                 .setAmount(amount);
 
-        transactionRepository.save(transaction);
+        entityManager.persist(transaction);
     }
 }

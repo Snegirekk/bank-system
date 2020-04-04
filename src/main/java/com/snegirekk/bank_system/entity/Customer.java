@@ -1,19 +1,31 @@
 package com.snegirekk.bank_system.entity;
 
-import org.springframework.data.annotation.Id;
-
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Entity
+@Table(name = "customers")
 public class Customer {
 
     @Id
     private UUID id;
+
+    @Column
     private String firstName;
+
+    @Column
     private String lastName;
-    private Account account;
+
+    @OneToMany(targetEntity = Account.class, mappedBy = "customer")
+    private List<Account> accounts;
+
+    @OneToOne(targetEntity = Address.class)
     private Address address;
+
+    @Column
     private LocalDate birthday;
 
     public Customer() {
@@ -47,12 +59,12 @@ public class Customer {
         return this;
     }
 
-    public Account getAccount() {
-        return account;
+    public List<Account> getAccounts() {
+        return accounts;
     }
 
-    public Customer setAccount(Account account) {
-        this.account = account;
+    public Customer setAccounts(List<Account> account) {
+        this.accounts = account;
         return this;
     }
 

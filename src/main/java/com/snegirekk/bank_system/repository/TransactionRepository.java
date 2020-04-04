@@ -1,11 +1,11 @@
 package com.snegirekk.bank_system.repository;
 
 import com.snegirekk.bank_system.entity.Transaction;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
 @Repository
-public interface TransactionRepository extends CrudRepository<Transaction, UUID> {
+public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 }

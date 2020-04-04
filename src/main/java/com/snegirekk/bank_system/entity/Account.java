@@ -1,17 +1,24 @@
 package com.snegirekk.bank_system.entity;
 
-import org.springframework.data.annotation.Id;
-
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
+@Entity
+@Table(name = "accounts")
 public class Account {
 
     @Id
     private UUID id;
+
+    @ManyToOne(targetEntity = Customer.class)
     private Customer customer;
+
+    @OneToOne(targetEntity = TransactionParticipant.class)
     private TransactionParticipant transactionParticipant;
+
+    @Column
     private BigDecimal amount;
 
     public Account() {

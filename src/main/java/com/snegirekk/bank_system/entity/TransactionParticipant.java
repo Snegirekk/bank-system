@@ -1,14 +1,18 @@
 package com.snegirekk.bank_system.entity;
 
-import org.springframework.data.annotation.Id;
-
+import javax.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
 
+@Entity
+@Table(name = "transaction_participants")
 public class TransactionParticipant {
 
     @Id
     private UUID id;
+
+    @Column
+    @Enumerated(EnumType.STRING)
     private Type type;
 
     public TransactionParticipant() {

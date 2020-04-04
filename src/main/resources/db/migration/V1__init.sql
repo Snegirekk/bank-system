@@ -1,6 +1,6 @@
 create extension if not exists "uuid-ossp";
 
-create table public.address (
+create table public.addresses (
     id uuid primary key,
     country varchar(2),
     locality varchar not null,
@@ -10,14 +10,14 @@ create table public.address (
     post_code varchar not null
 );
 
-create table public.account (
+create table public.accounts (
     id uuid primary key,
     amount decimal default 0,
     customer_id uuid,
     transaction_participant_id uuid
 );
 
-create table public.customer (
+create table public.customers (
     id uuid primary key,
     first_name varchar not null,
     last_name varchar not null,
@@ -25,30 +25,30 @@ create table public.customer (
     birthday date
 );
 
-create table public.transaction_participant (
+create table public.transaction_participants (
     id uuid primary key,
     type varchar not null
 );
 
-create table public.transaction (
+create table public.transactions (
     id uuid primary key,
     source_id uuid,
     target_id uuid,
     amount decimal
 );
 
-alter table public.account
+alter table public.accounts
     add constraint fk_customer_id
-        foreign key (customer_id) references public.customer (id),
+        foreign key (customer_id) references public.customers (id),
     add constraint fk_transaction_participant_id
-        foreign key (transaction_participant_id) references public.transaction_participant (id);
+        foreign key (transaction_participant_id) references public.transaction_participants (id);
 
-alter table public.customer
+alter table public.customers
     add constraint fk_address_id
-        foreign key (address_id) references public.address (id);
+        foreign key (address_id) references public.addresses (id);
 
-alter table public.transaction
+alter table public.transactions
     add constraint fk_source_id
-        foreign key (source_id) references public.transaction_participant (id),
+        foreign key (source_id) references public.transaction_participants (id),
     add constraint fk_target_id
-        foreign key (target_id) references public.transaction_participant (id);
+        foreign key (target_id) references public.transaction_participants (id);
